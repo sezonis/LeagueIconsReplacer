@@ -86,11 +86,15 @@ namespace LeagueIconsReplacer {
             var bigIconsDir = Directory.CreateDirectory($"{atlasDir.FullName}\\largeicons");
 
             var oldIconFiles = Directory.GetFiles(IconsDirectory);
-            var itemsToReplaceSet = new HashSet<int>(oldIconFiles.Select(n => {
-                var name = Path.GetFileNameWithoutExtension(n);
-                return int.Parse(name);
-            }));
-
+            var itemsToReplaceSet = new HashSet<int>();
+            
+            //Verify each name is itemid only
+            foreach(var oldIconFile in oldIconFiles) { 
+                var name = Path.GetFileNameWithoutExtension(oldIconFile).Trim();
+                if (int.TryParse(name, out var result)) {
+                    itemsToReplaceSet.Add(result);
+                }
+            };
 
 
             //Replaces small icons atlas
