@@ -25,7 +25,6 @@
         private void InitializeComponent() {
             buttonSetDirectory = new Button();
             buttonStart = new Button();
-            checkBoxUseWadMaker = new CheckBox();
             SuspendLayout();
             // 
             // buttonSetDirectory
@@ -56,37 +55,23 @@
             buttonStart.UseVisualStyleBackColor = false;
             buttonStart.Click += buttonStart_Click;
             // 
-            // checkBoxUseWadMaker
-            // 
-            checkBoxUseWadMaker.AutoSize = true;
-            checkBoxUseWadMaker.ForeColor = Color.White;
-            checkBoxUseWadMaker.Location = new Point(11, 115);
-            checkBoxUseWadMaker.Name = "checkBoxUseWadMaker";
-            checkBoxUseWadMaker.Size = new Size(149, 19);
-            checkBoxUseWadMaker.TabIndex = 2;
-            checkBoxUseWadMaker.Text = "Use Wad Maker Instead";
-            checkBoxUseWadMaker.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(58, 69, 86);
             ClientSize = new Size(207, 146);
-            Controls.Add(checkBoxUseWadMaker);
             Controls.Add(buttonStart);
             Controls.Add(buttonSetDirectory);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Name = "Form1";
             Text = "Lol Icon Replacer";
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
 
         private Button buttonSetDirectory;
         private Button buttonStart;
-        private CheckBox checkBoxUseWadMaker;
     }
 }

@@ -1,5 +1,4 @@
 using ImageMagick;
-using LeagueToolkit.Core.Wad;
 using LeagueIconsReplacer.CDragon.Models;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Diagnostics;
@@ -87,9 +86,9 @@ namespace LeagueIconsReplacer {
 
             var oldIconFiles = Directory.GetFiles(IconsDirectory);
             var itemsToReplaceSet = new HashSet<int>();
-            
+
             //Verify each name is itemid only
-            foreach(var oldIconFile in oldIconFiles) { 
+            foreach (var oldIconFile in oldIconFiles) {
                 var name = Path.GetFileNameWithoutExtension(oldIconFile).Trim();
                 if (int.TryParse(name, out var result)) {
                     itemsToReplaceSet.Add(result);
@@ -123,12 +122,7 @@ namespace LeagueIconsReplacer {
             //Save as wad
             Directory.CreateDirectory("WadOutputs");
             var wadOutputDir = "WadOutputs\\Global.wad.client";
-            if (checkBoxUseWadMaker.Checked) {
-                MakeWadWithWadMake(tempDir.FullName, wadOutputDir);
-            } else {
-                var files = Directory.GetFiles(tempDir.FullName, "*", SearchOption.AllDirectories);
-                WadBuilder.BakeFiles(files, tempDir.FullName, wadOutputDir, new WadBakeSettings());
-            }
+            MakeWadWithWadMake(tempDir.FullName, wadOutputDir);
 
             //Delete Temp Dir
             EmptyAndDeleteDir(tempDir);
