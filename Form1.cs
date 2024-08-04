@@ -44,6 +44,7 @@ namespace LeagueIconsReplacer {
                     var rect = item.CalculateRect(atlasResponse.Atlas.Width, atlasResponse.Atlas.Height);
                     var resized = ResizeImageToFitRectangle((Bitmap)image, rect);
                     graphics.DrawImage(resized, new Point((int)rect.X, (int)rect.Y));
+                    graphics.DrawImage(resized, new Point((int)rect.X, (int)rect.Y));
                 };
             }
             graphics.Dispose();
