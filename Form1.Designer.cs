@@ -25,6 +25,7 @@
         private void InitializeComponent() {
             buttonSetDirectory = new Button();
             buttonStart = new Button();
+            checkBoxSkipArenaBorders = new CheckBox();
             SuspendLayout();
             // 
             // buttonSetDirectory
@@ -55,23 +56,37 @@
             buttonStart.UseVisualStyleBackColor = false;
             buttonStart.Click += buttonStart_Click;
             // 
+            // checkBoxSkipArenaBorders
+            // 
+            checkBoxSkipArenaBorders.AutoSize = true;
+            checkBoxSkipArenaBorders.ForeColor = Color.FromArgb(42, 163, 204);
+            checkBoxSkipArenaBorders.Location = new Point(3, 125);
+            checkBoxSkipArenaBorders.Name = "checkBoxSkipArenaBorders";
+            checkBoxSkipArenaBorders.Size = new Size(168, 19);
+            checkBoxSkipArenaBorders.TabIndex = 2;
+            checkBoxSkipArenaBorders.Text = "Skip Arena Icon Processing";
+            checkBoxSkipArenaBorders.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(58, 69, 86);
             ClientSize = new Size(207, 146);
+            Controls.Add(checkBoxSkipArenaBorders);
             Controls.Add(buttonStart);
             Controls.Add(buttonSetDirectory);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Name = "Form1";
             Text = "Lol Icon Replacer";
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
         private Button buttonSetDirectory;
         private Button buttonStart;
+        private CheckBox checkBoxSkipArenaBorders;
     }
 }

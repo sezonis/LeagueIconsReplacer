@@ -1,5 +1,7 @@
 using ImageMagick;
+using LeagueIconsReplacer.CDragon;
 using LeagueIconsReplacer.CDragon.Models;
+using LeagueIconsReplacer.Processing;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Diagnostics;
 using System.Drawing.Imaging;
@@ -9,6 +11,7 @@ namespace LeagueIconsReplacer {
 
         static string? IconsDirectory { get; set; } = null;
 
+        static bool IgnoreArenaIcons = false;
         CDragon.Downloader Downloader { get; } = new CDragon.Downloader();
         public Form1() {
             InitializeComponent();
@@ -19,13 +22,7 @@ namespace LeagueIconsReplacer {
 
 
         private void SaveAsDDS(Image image, string outputPath) {
-            using (var memStream = new MemoryStream()) {
-                image.Save(memStream, ImageFormat.Png);
-                memStream.Position = 0;
-                using (var ddsImage = new MagickImage(memStream)) {
-                    ddsImage.Write(outputPath);
-                }
-            }
+            ItemIconImagerProcessor.SaveAsDds(image, outputPath);
         }
 
 
@@ -75,12 +72,12 @@ namespace LeagueIconsReplacer {
                 MessageBox.Show(this, "Please choose a directory first");
                 return;
             }
-
-            if (Directory.Exists("temp")) {
-                Directory.Delete("temp", true);
+            IgnoreArenaIcons = checkBoxSkipArenaBorders.Checked;
+            var tempDir = Directory.CreateDirectory("temp");
+            if (tempDir.Exists) {
+                tempDir.Delete(true);
             }
 
-            var tempDir = Directory.CreateDirectory("temp");
             var atlasDir = Directory.CreateDirectory($"{tempDir.FullName}\\assets\\items\\icons2d\\autoatlas");
             var smallIconsDir = Directory.CreateDirectory($"{atlasDir.FullName}\\smallicons");
             var bigIconsDir = Directory.CreateDirectory($"{atlasDir.FullName}\\largeicons");
@@ -96,7 +93,6 @@ namespace LeagueIconsReplacer {
                 }
             };
 
-
             //Replaces small icons atlas
             var smallIcons = Downloader.DownloadSmallIconsAtlas();
             var smallAtlas = ReplaceFiles(smallIcons, itemsToReplaceSet);
@@ -109,17 +105,24 @@ namespace LeagueIconsReplacer {
             var bigAtlas = ReplaceFiles(bigIcons, itemsToReplaceSet);
             SaveAsDDS(bigAtlas, $"{bigIconsDir.FullName}\\atlas_0.dds");
 
-            //Replace all Singletons
+            using var itemIconImageProcessor = new ItemIconImagerProcessor();
 
+            //Replace all Singletons
             foreach (var item in Downloader.GetSingletonNames()) {
                 if (!itemsToReplaceSet.Contains(item.Id)) continue;
+                //option to skip because writing to map30.wad will increase injection time
+                if(IgnoreArenaIcons && item.ItemIconType == CDragon.Enum.ItemIconType.ArenaBorderd) continue;
                 var imageFilePath = $"{IconsDirectory}\\{item.Id}.png";
                 if (File.Exists(imageFilePath)) {
                     using var img = Image.FromFile(imageFilePath);
-                    var outputFilePath = Path.Combine(tempDir.FullName,Path.ChangeExtension(item.RelativePath,".dds"));
-                    SaveAsDDS(img,outputFilePath);
+                    var outputFilePath = Path.Combine(tempDir.FullName,Path.ChangeExtension(item.RelativePath,item.GetExtension()));
+                    Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath));
+                    itemIconImageProcessor.ProcessImageSingleton(item,img, outputFilePath);
                 }
             }
+
+            //Dispospe of the image proccessor so it can clear the image cache
+            itemIconImageProcessor?.Dispose();
 
             //Save as wad
             Directory.CreateDirectory("WadOutputs");

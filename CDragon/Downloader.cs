@@ -23,24 +23,31 @@ namespace LeagueIconsReplacer.CDragon {
             };
         }
 
+        private record IconDirectoryInfo(string DirectoryUrl, ItemIconType ItemIconType = ItemIconType.Normal) { }
+
         public List<SingletonItem> GetSingletonNames(){
             var itemsList = new List<SingletonItem>();
+            //check both small icons and icons2d because riot or cdragon stores some items in other directories
             var icons2dBaseUrl = $"{BaseUrl}/game/assets/items/icons2d/"; //server expects a / at the end
             var icons2dSmallAtlas = $"{icons2dBaseUrl}autoatlas/smallicons/";  
-            //check both small icons and icons2d because riot or cdragon stores some items in other directories
-            string[] iconUrlDirectoriesToCheck = new string[] { icons2dBaseUrl, icons2dSmallAtlas };
-            foreach (var iconUrlDirectory in iconUrlDirectoriesToCheck) {
-                itemsList.AddRange(GetSingletonItemsList(iconUrlDirectory));
+            //arena border icons
+            var icons2dArenaIcons = $"{icons2dBaseUrl}autoatlas/xlborderedicons/";
+            IconDirectoryInfo[] iconUrlDirectoriesToCheck = new IconDirectoryInfo[] { new(icons2dBaseUrl), new(icons2dSmallAtlas), new(icons2dArenaIcons, ItemIconType.ArenaBorderd)};
+            foreach (var iconDirectoryInfo in iconUrlDirectoriesToCheck) {
+                itemsList.AddRange(GetSingletonItemsList(iconDirectoryInfo.DirectoryUrl,iconDirectoryInfo.ItemIconType));
             }
             return itemsList;
         }
 
-        List<SingletonItem> GetSingletonItemsList(string url) {
+        List<SingletonItem> GetSingletonItemsList(string url, ItemIconType itemIconType) {
             var itemsList = new List<SingletonItem>();
             var htmlDocument = new HtmlAgilityPack.HtmlDocument();
             htmlDocument.LoadHtml(GetResponse(url));
             var document = htmlDocument.DocumentNode;
             var tableRows = document.QuerySelectorAll("#list >tbody > tr");
+            if (!url.EndsWith("/")) { 
+                url += "/";
+            }
             var urlsRelativeDir = url.Substring(url.IndexOf("/game/") + 6);
             foreach (var tableRow in tableRows) {
                 var nameNode = tableRow.FirstChild;
@@ -50,7 +57,9 @@ namespace LeagueIconsReplacer.CDragon {
                     itemsList.Add(new SingletonItem() {
                         Id = int.Parse(match.Groups[1].Value),
                         Name = Path.GetFileNameWithoutExtension(innerText),
-                        RelativePath = Path.Combine(urlsRelativeDir, Path.GetFileName(innerText))
+                        RelativePath = Path.Combine(urlsRelativeDir, Path.GetFileName(innerText)),
+                        ItemIconType = itemIconType,
+                        Url = url + innerText
                     });
                 }
             }
@@ -67,8 +76,7 @@ namespace LeagueIconsReplacer.CDragon {
         }
 
 
-
-        Image DownloadImage(string url) {
+        public static Image DownloadImage(string url) {
             using (WebClient webClient = new WebClient()) {
                 using (Stream stream = webClient.OpenRead(url)) {
                     return Image.FromStream(stream);
