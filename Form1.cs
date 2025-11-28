@@ -116,7 +116,8 @@ namespace LeagueIconsReplacer {
                 var imageFilePath = $"{IconsDirectory}\\{item.Id}.png";
                 if (File.Exists(imageFilePath)) {
                     using var img = Image.FromFile(imageFilePath);
-                    SaveAsDDS(img, $"{atlasDir.Parent}\\{item.Name}.dds");
+                    var outputFilePath = Path.Combine(tempDir.FullName,Path.ChangeExtension(item.RelativePath,".dds"));
+                    SaveAsDDS(img,outputFilePath);
                 }
             }
 

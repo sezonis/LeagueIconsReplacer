@@ -25,20 +25,32 @@ namespace LeagueIconsReplacer.CDragon {
 
         public List<SingletonItem> GetSingletonNames(){
             var itemsList = new List<SingletonItem>();
-            var html = GetResponse($"{BaseUrl}/game/assets/items/icons2d/");
-            var htmlDocument = new HtmlAgilityPack.HtmlDocument();
-            htmlDocument.LoadHtml(html);
+            var icons2dBaseUrl = $"{BaseUrl}/game/assets/items/icons2d/"; //server expects a / at the end
+            var icons2dSmallAtlas = $"{icons2dBaseUrl}autoatlas/smallicons/";  
+            //check both small icons and icons2d because riot or cdragon stores some items in other directories
+            string[] iconUrlDirectoriesToCheck = new string[] { icons2dBaseUrl, icons2dSmallAtlas };
+            foreach (var iconUrlDirectory in iconUrlDirectoriesToCheck) {
+                itemsList.AddRange(GetSingletonItemsList(iconUrlDirectory));
+            }
+            return itemsList;
+        }
 
+        List<SingletonItem> GetSingletonItemsList(string url) {
+            var itemsList = new List<SingletonItem>();
+            var htmlDocument = new HtmlAgilityPack.HtmlDocument();
+            htmlDocument.LoadHtml(GetResponse(url));
             var document = htmlDocument.DocumentNode;
             var tableRows = document.QuerySelectorAll("#list >tbody > tr");
-            foreach(var tableRow in tableRows) {
+            var urlsRelativeDir = url.Substring(url.IndexOf("/game/") + 6);
+            foreach (var tableRow in tableRows) {
                 var nameNode = tableRow.FirstChild;
                 var innerText = nameNode.InnerText.Trim();
                 var match = Regex.Match(innerText, AtlasReader.LoLIdRegexPattern);
                 if (match.Success) {
                     itemsList.Add(new SingletonItem() {
                         Id = int.Parse(match.Groups[1].Value),
-                        Name = Path.GetFileNameWithoutExtension(innerText)
+                        Name = Path.GetFileNameWithoutExtension(innerText),
+                        RelativePath = Path.Combine(urlsRelativeDir, Path.GetFileName(innerText))
                     });
                 }
             }
