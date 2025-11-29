@@ -139,10 +139,14 @@ namespace LeagueIconsReplacer.Processing {
             // Create final canvas
             var result = new MagickImage(MagickColors.Transparent, outerSize, outerSize);
 
+            // Double draw because riot transparency issues
+
             // Draw border first
+            result.Composite(borderedImage, CompositeOperator.Over);
             result.Composite(borderedImage, CompositeOperator.Over);
 
             // Composite scaled icon
+            result.Composite(icon, offsetX, offsetY, CompositeOperator.Over);
             result.Composite(icon, offsetX, offsetY, CompositeOperator.Over);
 
             return result;
