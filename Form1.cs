@@ -11,7 +11,6 @@ namespace LeagueIconsReplacer {
 
         static string? IconsDirectory { get; set; } = null;
 
-        static bool IgnoreArenaIcons = false;
         CDragon.Downloader Downloader { get; } = new CDragon.Downloader();
         public Form1() {
             InitializeComponent();
@@ -72,7 +71,6 @@ namespace LeagueIconsReplacer {
                 MessageBox.Show(this, "Please choose a directory first");
                 return;
             }
-            IgnoreArenaIcons = checkBoxSkipArenaBorders.Checked;
             var tempDir = Directory.CreateDirectory("temp");
             if (tempDir.Exists) {
                 tempDir.Delete(true);
@@ -110,8 +108,6 @@ namespace LeagueIconsReplacer {
             //Replace all Singletons
             foreach (var item in Downloader.GetSingletonNames()) {
                 if (!itemsToReplaceSet.Contains(item.Id)) continue;
-                //option to skip because writing to map30.wad will increase injection time
-                if(IgnoreArenaIcons && item.ItemIconType == CDragon.Enum.ItemIconType.ArenaBorderd) continue;
                 var imageFilePath = $"{IconsDirectory}\\{item.Id}.png";
                 if (File.Exists(imageFilePath)) {
                     using var img = Image.FromFile(imageFilePath);
